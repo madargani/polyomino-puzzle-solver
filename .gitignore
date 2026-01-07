@@ -4,6 +4,9 @@
 # debug directory
 /debug/
 
+# Puzzle images (local only)
+/data/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
