@@ -8,16 +8,45 @@ Inspired by day 12 of [Advent of Code 2025](https://adventofcode.com/2025), I de
 
 ## Usage
 
-To run the jigsaw puzzle solver, execute the main Python script with the paths to the board and puzzle pictures:
+### Running the Application
 
+You can run the Woodster Jigsaw Solver using either method:
+
+**Using Python module execution:**
 ```bash
-python main.py --board <path_to_board_image> --puzzle <path_to_puzzle_image>
+python -m woodster_jigsaw_solver
 ```
 
-For example:
+**Direct script execution (from project root):**
+```bash
+python src/woodster_jigsaw_solver/__main__.py
+```
+
+### Application Overview
+
+The solver provides a GUI interface with two main tabs:
+
+1. **Board Tab**: Visualize and interact with the puzzle board grid
+2. **Pieces Tab**: Manage puzzle pieces, including adding new pieces from images
+
+### Basic Workflow
+
+1. Launch the application using one of the methods above
+2. Navigate to the **Pieces Tab** to add puzzle pieces from image files
+3. Switch to the **Board Tab** to see the puzzle board and arrange pieces
+4. Use the solver functionality to find solutions (WIP)
+
+### Development
 
 ```bash
-python main.py --board images/board.jpg --puzzle images/pieces.jpg
+# Install dependencies
+uv sync
+
+# Run tests
+pytest
+
+# Run with coverage
+pytest --cov=woodster_jigsaw_solver
 ```
 
 ## Technology Stack

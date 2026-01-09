@@ -10,13 +10,12 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "opencv-python>=4.12.0.88",
+    "customtkinter>=5.2.0",
+    "pillow>=12.1.0",
 ]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0.0"]
-
-[project.scripts]
-solve = "woodster_jigsaw_solver.__main__:main"
 
 [dependency-groups]
 dev = [

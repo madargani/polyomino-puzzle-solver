@@ -1,5 +1,8 @@
 def main():
-    print("Hello from woodster-jigsaw-solver!")
+    from woodster_jigsaw_solver.gui import MainWindow
+
+    app = MainWindow()
+    app.mainloop()
 
 
 if __name__ == "__main__":
