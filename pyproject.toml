@@ -11,6 +11,7 @@ requires-python = ">=3.13"
 dependencies = [
     "customtkinter>=5.2.0",
     "pillow>=12.1.0",
+    "pygame>=2.6.0",
 ]
 
 [project.optional-dependencies]
