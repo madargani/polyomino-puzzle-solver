@@ -1,10 +1,11 @@
 import json
-from typing import Dict, Callable
+from tkinter import filedialog
+from typing import Callable, Dict
 
 import customtkinter as ctk
-from tkinter import filedialog
-from polyomino_jigsaw_solver.gui.piece_list import PieceListWidget
+
 from polyomino_jigsaw_solver.gui.piece_editor import PieceEditorDialog
+from polyomino_jigsaw_solver.gui.piece_list import PieceListWidget
 from polyomino_jigsaw_solver.models.puzzle_piece import PuzzlePiece
 
 
@@ -80,11 +81,9 @@ class PuzzlePieceTab(ctk.CTkFrame):
 
     def _on_piece_saved(self, piece: PuzzlePiece) -> None:
         # Check if piece already exists
-        for existing_piece in self.pieces.keys():
-            if existing_piece.transformations == piece.transformations:
-                # Piece already exists, increment count
-                self.pieces[existing_piece] += 1
-                break
+        if piece in self.pieces:
+            # Piece already exists, increment count
+            self.pieces[piece] += 1
         else:
             # No existing pieces or new piece, add it
             self.pieces[piece] = 1

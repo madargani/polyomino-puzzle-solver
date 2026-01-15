@@ -14,3 +14,8 @@ class BoardRenderer(ABC):
             board: The PuzzleBoard object to display.
         """
         pass
+
+    @abstractmethod
+    def close(self) -> None:
+        """Closes the renderer"""
+        pass

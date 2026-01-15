@@ -1,6 +1,7 @@
 from typing import Callable, FrozenSet, Optional
 
 import customtkinter as ctk
+
 from polyomino_jigsaw_solver.gui.grid_widget import GridWidget
 from polyomino_jigsaw_solver.models.puzzle_piece import PuzzlePiece
 
@@ -34,7 +35,7 @@ class PieceEditorDialog(ctk.CTkToplevel):
 
         # Grid widget (10x10 as specified)
         self.grid_widget = GridWidget(
-            self, rows=10, cols=10, cell_size=30, initial_state=initial_state
+            self, rows=20, cols=20, cell_size=20, initial_state=initial_state
         )
         self.grid_widget.pack(padx=20, pady=10)
 

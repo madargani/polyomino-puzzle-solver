@@ -99,9 +99,10 @@ class PieceListWidget(ctk.CTkScrollableFrame):
         pieces: Dict[PuzzlePiece, int],
         on_pieces_change: Callable[[Dict[PuzzlePiece, int]], None],
         on_add_piece: Callable[[], None],
+        height: int = 400,
         **kwargs,
     ) -> None:
-        super().__init__(master, **kwargs)
+        super().__init__(master, height=height, **kwargs)
         self.pieces = pieces
         self.on_pieces_change = on_pieces_change
         self.on_add_piece = on_add_piece

@@ -14,7 +14,7 @@ class PygameBoardRenderer(BoardRenderer):
         self,
         board_width: int,
         board_height: int,
-        cell_size: int = 30,
+        cell_size: int = 15,
         window_size: int | None = None,
         background_color: tuple[int, int, int] = (26, 26, 46),
         fill_color: tuple[int, int, int] = (74, 144, 226),
@@ -36,9 +36,13 @@ class PygameBoardRenderer(BoardRenderer):
         pygame.init()
 
         if window_size is None:
-            window_size = max(board_width, board_height) * cell_size
+            window_width = board_width * cell_size
+            window_height = board_height * cell_size
+        else:
+            window_width = window_size
+            window_height = window_size
 
-        self.surface = pygame.display.set_mode((window_size, window_size))
+        self.surface = pygame.display.set_mode((window_width, window_height))
         self.cell_size = cell_size
         self.board_width = board_width
         self.board_height = board_height
