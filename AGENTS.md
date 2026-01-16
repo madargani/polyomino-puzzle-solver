@@ -3,6 +3,8 @@
 Auto-generated from all feature plans. Last updated: 2026-01-15
 
 ## Active Technologies
+- Python 3.11+ + PySide6>=6.5.0, pytest>=7.0, pytest-qt>=4.0, pytest-mock>=3.10 (001-polyomino-puzzle-solver)
+- JSON file format for puzzle save/load/export/import (001-polyomino-puzzle-solver)
 
 - Python 3.11+ + PySide6 (Qt6), pytest, pytest-qt, pytest-mock (001-polyomino-puzzle-solver)
 
@@ -22,6 +24,7 @@ cd src [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECHNOLO
 Python 3.11+: Follow standard conventions
 
 ## Recent Changes
+- 001-polyomino-puzzle-solver: Added Python 3.11+ + PySide6>=6.5.0, pytest>=7.0, pytest-qt>=4.0, pytest-mock>=3.10
 
 - 001-polyomino-puzzle-solver: Added Python 3.11+ + PySide6 (Qt6), pytest, pytest-qt, pytest-mock
 

@@ -1,0 +1,197 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "polyomino-jigsaw-solver"
+version = "0.1.0"
+description = "A GUI application for solving polyomino puzzles with backtracking visualization"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    { name = "Polyomino Solver Team" }
+]
+keywords = ["puzzle", "polyomino", "qt", "gui", "solver", "backtracking"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Games/Entertainment :: Puzzle Games",
+    "Topic :: Scientific/Engineering :: Visualization",
+]
+
+dependencies = [
+    "PySide6>=6.5.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0.0",
+    "pytest-qt>=4.0.0",
+    "pytest-mock>=3.10.0",
+    "pytest-cov>=4.0.0",
+]
+dev = [
+    "ruff>=0.1.0",
+    "mypy>=1.5.0",
+    "black>=23.0.0",
+    "radon>=6.0.0",
+]
+
+[dependency-groups]
+test = [
+    "pytest>=7.0.0",
+    "pytest-qt>=4.0.0",
+    "pytest-mock>=3.10.0",
+    "pytest-cov>=4.0.0",
+]
+dev = [
+    { include-group = "test" },
+    "ruff>=0.1.0",
+    "mypy>=1.5.0",
+    "black>=23.0.0",
+    "radon>=6.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/polyomino-jigsaw-solver"
+Documentation = "https://github.com/yourusername/polyomino-jigsaw-solver#readme"
+Repository = "https://github.com/yourusername/polyomino-jigsaw-solver.git"
+Issues = "https://github.com/yourusername/polyomino-jigsaw-solver/issues"
+
+[project.scripts]
+polyomino-solver = "src.main:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/tests",
+    "/README.md",
+]
+
+# Code Quality: Ruff (Linter + Formatter)
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "SIM", # flake8-simplify
+]
+ignore = [
+    "E501", # Line too long (handled by formatter)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"] # Unused imports in __init__.py
+
+# Code Quality: Black (Formatter)
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+skip-string-normalization = false
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+# Code Quality: MyPy (Type Checker)
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+strict = true
+disallow_untyped_defs = true
+disallow_any_generics = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+follow_imports = "normal"
+
+[[tool.mypy.overrides]]
+module = "PySide6.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+
+# Testing: Pytest Configuration
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short --strict-markers"
+markers = [
+    "unit: Unit tests (no GUI)",
+    "integration: Integration tests (multiple modules)",
+    "gui: GUI tests (requires display)",
+]
+
+# Testing: Coverage Configuration
+[tool.coverage.run]
+source = ["src"]
+branch = true
+parallel = true
+
+[tool.coverage.paths]
+source = [
+    "src",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
+
+# Documentation
+[tool.pydocstyle]
+convention = "google"
+add-ignore = [
+    "D100", # Missing docstring in public module
+    "D104", # Missing docstring in public package
+]
+
+# uv-specific settings (optional)
+[tool.uv]
+# Configure default dependency groups for sync
+default-groups = ["dev"]

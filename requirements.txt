@@ -1,0 +1,21 @@
+# Polyomino Puzzle Solver Dependencies
+# Generated from pyproject.toml
+# For uv-based installation, use: uv sync
+
+# Core Dependencies
+PySide6>=6.5.0
+
+# Test Dependencies
+pytest>=7.0.0
+pytest-qt>=4.0.0
+pytest-mock>=3.10.0
+pytest-cov>=4.0.0
+
+# Development Dependencies
+ruff>=0.1.0
+mypy>=1.5.0
+black>=23.0.0
+radon>=6.0.0
+
+# Optional: For coverage reporting
+coverage>=7.0.0

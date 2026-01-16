@@ -1,0 +1,50 @@
+# Ruff ignore file - patterns to exclude from linting
+
+# Directories
+.venv/
+venv/
+env/
+ENV/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+build/
+dist/
+*.egg-info/
+.tox/
+.nox/
+.coverage
+htmlcov/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation
+docs/_build/
+build/
+
+# Testing
+tests/fixtures/external/
+
+# Type stubs
+*.pyi

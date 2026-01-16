@@ -1,0 +1,306 @@
+{
+  "version": "1.0",
+  "description": "Sample puzzle configurations for testing the Polyomino Puzzle Solver",
+  "puzzles": [
+    {
+      "name": "Simple Domino Puzzle",
+      "difficulty": "easy",
+      "description": "A simple 2x2 puzzle with two domino pieces",
+      "board": {
+        "width": 2,
+        "height": 2
+      },
+      "pieces": [
+        {
+          "id": "domino-1",
+          "shape": [[0, 0], [0, 1]],
+          "color": "#FF6B6B"
+        },
+        {
+          "id": "domino-2",
+          "shape": [[0, 0], [1, 0]],
+          "color": "#4ECDC4"
+        }
+      ],
+      "expected_solution": {
+        "solvable": true,
+        "piece_count": 2
+      }
+    },
+    {
+      "name": "L-Tromino Puzzle",
+      "difficulty": "easy",
+      "description": "A 3x3 board with two L-shaped trominoes",
+      "board": {
+        "width": 3,
+        "height": 3
+      },
+      "pieces": [
+        {
+          "id": "l-tromino-1",
+          "shape": [[0, 0], [1, 0], [1, 1]],
+          "color": "#FF6B6B"
+        },
+        {
+          "id": "l-tromino-2",
+          "shape": [[0, 0], [0, 1], [1, 0]],
+          "color": "#4ECDC4"
+        },
+        {
+          "id": "l-tromino-3",
+          "shape": [[0, 0], [0, 1], [0, 2]],
+          "color": "#45B7D1"
+        }
+      ],
+      "expected_solution": {
+        "solvable": true,
+        "piece_count": 3
+      }
+    },
+    {
+      "name": "T-Tetromino Puzzle",
+      "difficulty": "medium",
+      "description": "A 4x4 board with T-tetromino pieces",
+      "board": {
+        "width": 4,
+        "height": 4
+      },
+      "pieces": [
+        {
+          "id": "t-tetromino-1",
+          "shape": [[0, 0], [0, 1], [0, 2], [1, 1]],
+          "color": "#FF6B6B"
+        },
+        {
+          "id": "t-tetromino-2",
+          "shape": [[0, 0], [0, 1], [0, 2], [1, 1]],
+          "color": "#4ECDC4"
+        },
+        {
+          "id": "l-tetromino-1",
+          "shape": [[0, 0], [1, 0], [2, 0], [2, 1]],
+          "color": "#45B7D1"
+        },
+        {
+          "id": "l-tetromino-2",
+          "shape": [[0, 1], [1, 1], [2, 1], [2, 0]],
+          "color": "#96CEB4"
+        }
+      ],
+      "expected_solution": {
+        "solvable": true,
+        "piece_count": 4
+      }
+    },
+    {
+      "name": "Square Tetromino Puzzle",
+      "difficulty": "easy",
+      "description": "A 4x4 board with O-tetromino pieces (2x2 squares)",
+      "board": {
+        "width": 4,
+        "height": 4
+      },
+      "pieces": [
+        {
+          "id": "o-tetromino-1",
+          "shape": [[0, 0], [0, 1], [1, 0], [1, 1]],
+          "color": "#FF6B6B"
+        },
+        {
+          "id": "o-tetromino-2",
+          "shape": [[0, 0], [0, 1], [1, 0], [1, 1]],
+          "color": "#4ECDC4"
+        },
+        {
+          "id": "o-tetromino-3",
+          "shape": [[0, 0], [0, 1], [1, 0], [1, 1]],
+          "color": "#45B7D1"
+        },
+        {
+          "id": "o-tetromino-4",
+          "shape": [[0, 0], [0, 1], [1, 0], [1, 1]],
+          "color": "#96CEB4"
+        }
+      ],
+      "expected_solution": {
+        "solvable": true,
+        "piece_count": 4
+      }
+    },
+    {
+      "name": "Pentomino Puzzle - Classic",
+      "difficulty": "hard",
+      "description": "A 6x10 board with all 12 pentominoes",
+      "board": {
+        "width": 10,
+        "height": 6
+      },
+      "pieces": [
+        {
+          "id": "pentomino-f",
+          "shape": [[0, 1], [1, 0], [1, 1], [1, 2], [2, 2]],
+          "color": "#E74C3C"
+        },
+        {
+          "id": "pentomino-i",
+          "shape": [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]],
+          "color": "#3498DB"
+        },
+        {
+          "id": "pentomino-l",
+          "shape": [[0, 0], [1, 0], [2, 0], [3, 0], [3, 1]],
+          "color": "#2ECC71"
+        },
+        {
+          "id": "pentomino-n",
+          "shape": [[0, 0], [1, 0], [2, 0], [2, 1], [3, 1]],
+          "color": "#9B59B6"
+        },
+        {
+          "id": "pentomino-p",
+          "shape": [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0]],
+          "color": "#F39C12"
+        },
+        {
+          "id": "pentomino-t",
+          "shape": [[0, 0], [0, 1], [0, 2], [1, 1], [2, 1]],
+          "color": "#1ABC9C"
+        },
+        {
+          "id": "pentomino-u",
+          "shape": [[0, 0], [0, 2], [1, 0], [1, 1], [1, 2]],
+          "color": "#E91E63"
+        },
+        {
+          "id": "pentomino-v",
+          "shape": [[0, 0], [0, 1], [0, 2], [1, 0], [2, 0]],
+          "color": "#00BCD4"
+        },
+        {
+          "id": "pentomino-w",
+          "shape": [[0, 0], [0, 1], [1, 1], [1, 2], [2, 2]],
+          "color": "#8BC34A"
+        },
+        {
+          "id": "pentomino-x",
+          "shape": [[0, 1], [1, 0], [1, 1], [1, 2], [2, 1]],
+          "color": "#FF9800"
+        },
+        {
+          "id": "pentomino-y",
+          "shape": [[0, 0], [1, 0], [2, 0], [3, 0], [2, 1]],
+          "color": "#795548"
+        },
+        {
+          "id": "pentomino-z",
+          "shape": [[0, 0], [0, 1], [1, 1], [1, 2], [2, 2]],
+          "color": "#607D8B"
+        }
+      ],
+      "expected_solution": {
+        "solvable": true,
+        "piece_count": 12
+      }
+    },
+    {
+      "name": "Mixed Tetromino Puzzle",
+      "difficulty": "medium",
+      "description": "A 5x5 board with various tetromino shapes",
+      "board": {
+        "width": 5,
+        "height": 5
+      },
+      "pieces": [
+        {
+          "id": "i-tetromino",
+          "shape": [[0, 0], [1, 0], [2, 0], [3, 0]],
+          "color": "#FF6B6B"
+        },
+        {
+          "id": "o-tetromino",
+          "shape": [[0, 0], [0, 1], [1, 0], [1, 1]],
+          "color": "#4ECDC4"
+        },
+        {
+          "id": "t-tetromino",
+          "shape": [[0, 0], [0, 1], [0, 2], [1, 1]],
+          "color": "#45B7D1"
+        },
+        {
+          "id": "s-tetromino",
+          "shape": [[0, 1], [0, 2], [1, 0], [1, 1]],
+          "color": "#96CEB4"
+        },
+        {
+          "id": "z-tetromino",
+          "shape": [[0, 0], [0, 1], [1, 1], [1, 2]],
+          "color": "#FFEAA7"
+        },
+        {
+          "id": "l-tetromino",
+          "shape": [[0, 0], [1, 0], [2, 0], [2, 1]],
+          "color": "#DDA0DD"
+        },
+        {
+          "id": "j-tetromino",
+          "shape": [[0, 1], [1, 1], [2, 1], [2, 0]],
+          "color": "#98D8C8"
+        }
+      ],
+      "expected_solution": {
+        "solvable": true,
+        "piece_count": 7
+      }
+    },
+    {
+      "name": "Simple Monomino",
+      "difficulty": "trivial",
+      "description": "A single cell puzzle - the simplest possible",
+      "board": {
+        "width": 1,
+        "height": 1
+      },
+      "pieces": [
+        {
+          "id": "monomino-1",
+          "shape": [[0, 0]],
+          "color": "#FF6B6B"
+        }
+      ],
+      "expected_solution": {
+        "solvable": true,
+        "piece_count": 1
+      }
+    },
+    {
+      "name": "Rectangular Dominoes",
+      "difficulty": "easy",
+      "description": "A 3x2 board with three dominoes",
+      "board": {
+        "width": 3,
+        "height": 2
+      },
+      "pieces": [
+        {
+          "id": "domino-h-1",
+          "shape": [[0, 0], [0, 1]],
+          "color": "#FF6B6B"
+        },
+        {
+          "id": "domino-h-2",
+          "shape": [[0, 0], [0, 1]],
+          "color": "#4ECDC4"
+        },
+        {
+          "id": "domino-v-1",
+          "shape": [[0, 0], [1, 0]],
+          "color": "#45B7D1"
+        }
+      ],
+      "expected_solution": {
+        "solvable": true,
+        "piece_count": 3
+      }
+    }
+  ]
+}

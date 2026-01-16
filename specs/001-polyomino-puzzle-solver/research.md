@@ -596,12 +596,316 @@ jobs:
 
 ---
 
+## Dependency Management: uv (Ultrafast Python Package Manager)
+
+### Decision: Use uv for Python Dependency Management
+
+**Rationale**: uv provides ultrafast dependency resolution, replaces multiple tools (pip, pip-tools, poetry, virtualenv, pyenv), and offers modern project management with lockfile support. It's 10-100x faster than pip and integrates seamlessly with Python 3.11+ projects.
+
+### Alternatives Evaluated
+
+#### 1. Traditional pip + requirements.txt ❌ REJECTED
+
+**Strengths**:
+- Built into Python, no installation
+- Simple, widely understood
+- Works with any Python project
+
+**Weaknesses**:
+- **Slow dependency resolution** (minutes vs seconds with uv)
+- No lockfile support by default (non-reproducible builds)
+- Requires separate tool (pip-tools) for lockfiles
+- Manual virtual environment management (venv, pyenv)
+- No dependency groups (all dependencies in one file)
+
+**Why Rejected**: Slow resolution times add up during development. Without lockfiles, different developers and CI/CD environments may get different dependency versions. Manual environment management is error-prone.
+
+#### 2. Poetry ✅ REJECTED (but viable alternative)
+
+**Strengths**:
+- Lockfile support (pyproject.lock)
+- Dependency groups (dev, test, docs)
+- Single tool for all operations
+- Widely used, mature ecosystem
+
+**Weaknesses**:
+- Slower than uv (but faster than pip)
+- More complex configuration than uv
+- Separate pyproject.lock format (not universal)
+- Requires Poetry-specific project structure
+
+**Why Rejected**: uv is significantly faster (10-100x) while providing similar functionality with simpler configuration. uv uses standard PEP 621 pyproject.toml format, making it more interoperable.
+
+#### 3. PDM ✅ REJECTED (but viable alternative)
+
+**Strengths**:
+- PEP 621 compliant
+- Lockfile support
+- Dependency groups
+- Active development
+
+**Weaknesses**:
+- Slower than uv
+- Less mature than Poetry
+- Smaller community
+
+**Why Rejected**: uv provides better performance with similar PEP 621 compliance and larger, growing community.
+
+#### 4. uv ✅ SELECTED
+
+**Strengths**:
+- **Ultrafast**: 10-100x faster than pip for dependency resolution
+- **Universal lockfile**: Cross-platform, reproducible builds
+- **Modern standards**: PEP 621 pyproject.toml, PEP 632
+- **Dependency groups**: Separate dev, test, doc dependencies
+- **Replaces multiple tools**: pip, pip-tools, poetry, virtualenv, pyenv, pipx, twine
+- **Simple workflow**: `uv init`, `uv add`, `uv sync`, `uv run`
+- **Excellent documentation**: Clear, comprehensive guides
+
+**Weaknesses**:
+- Relatively new tool (but rapidly maturing)
+- Some edge cases with specific platform wheels (e.g., PySide6 on some platforms)
+
+**Why Selected**: Best-in-class performance, modern Python standards, and comprehensive tooling in a single package. Enables fast, reproducible development workflow essential for this project's iterative development cycle.
+
+### uv Configuration for This Project
+
+#### pyproject.toml Structure
+
+```toml
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "polyomino-jigsaw-solver"
+version = "0.1.0"
+description = "A GUI application for solving polyomino puzzles with backtracking visualization"
+requires-python = ">=3.11"
+dependencies = [
+    "PySide6>=6.5.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0",
+    "pytest-qt>=4.0",
+    "pytest-mock>=3.10",
+    "pytest-cov>=4.0",
+]
+dev = [
+    "ruff>=0.1.0",
+    "mypy>=1.5.0",
+    "black>=23.0.0",
+    "radon>=6.0.0",
+]
+
+[dependency-groups]
+test = [
+    { include-group = "test" },
+]
+dev = [
+    { include-group = "test" },
+    { include-group = "dev" },
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+strict = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+```
+
+#### Key uv Commands
+
+**Project Setup**:
+```bash
+# Initialize new project (creates pyproject.toml)
+uv init polyomino-jigsaw-solver
+
+# Set up virtual environment with Python 3.11+
+uv venv --python 3.11
+
+# Sync dependencies (installs from lockfile)
+uv sync
+
+# Install all dependency groups (dev + test)
+uv sync --all-groups
+```
+
+**Adding Dependencies**:
+```bash
+# Add production dependency
+uv add PySide6
+
+# Add to specific group
+uv add --group dev ruff
+uv add --group test pytest pytest-qt
+
+# Add with version constraint
+uv add "PySide6>=6.5.0"
+
+# Import from requirements.txt
+uv add -r requirements.txt
+```
+
+**Running Commands**:
+```bash
+# Run tests in project environment
+uv run pytest tests/ -v
+
+# Run application
+uv run python -m src.main
+
+# Run linting
+uv run ruff check .
+
+# Run type checking
+uv run mypy src/
+
+# Run with specific dependency group
+uv run --with pytest-qt pytest tests/gui/
+```
+
+**Dependency Management**:
+```bash
+# Update lockfile (upgrade all to latest compatible)
+uv lock --upgrade
+
+# Update specific package
+uv lock --upgrade-package PySide6
+
+# Remove dependency
+uv remove unused-package
+
+# View dependency tree
+uv tree
+
+# Check if lockfile is up-to-date
+uv lock --check
+```
+
+### uv Best Practices
+
+1. **Check uv.lock into version control**: Ensures reproducible builds across all environments
+2. **Don't manually edit .venv**: Let uv manage the virtual environment
+3. **Use dependency groups**: Separate production, development, and test dependencies
+4. **Use `uv run` for all commands**: Ensures correct environment is active
+5. **Run `uv sync` after pulling**: Keeps local environment in sync with lockfile
+6. **Pin critical dependencies**: Use exact versions (`==6.5.0`) for stability-critical packages
+7. **Update lockfile before committing**: Run `uv lock --upgrade` to test compatibility
+
+### Integration with Development Tools
+
+**Linting and Formatting**:
+```bash
+# Run ruff (fast Python linter)
+uv run ruff check src/
+uv run ruff check --fix src/
+
+# Run black (auto-formatter)
+uv run black src/
+uv run black --check src/  # Check without modifying
+
+# Run mypy (type checker)
+uv run mypy src/ --strict
+```
+
+**Testing**:
+```bash
+# Run all tests
+uv run pytest
+
+# Run with coverage
+uv run pytest --cov=src --cov-report=html
+
+# Run specific tests
+uv run pytest tests/unit/test_piece.py -v
+
+# Run in verbose mode
+uv run pytest -v --tb=short
+```
+
+**Quality Gates**:
+```bash
+# Pre-commit checks (run all quality gates)
+uv run ruff check src/ && uv run mypy src/ --strict && uv run pytest tests/ -v
+```
+
+### uv vs Traditional Tools Comparison
+
+| Feature | pip + venv | Poetry | uv |
+|----------|--------------|---------|-----|
+| Dependency Resolution Speed | Slow (minutes) | Moderate (seconds) | **Fast (milliseconds)** |
+| Lockfile Support | No (pip-tools needed) | Yes (pyproject.lock) | **Yes (uv.lock, universal)** |
+| Dependency Groups | No | Yes | **Yes** |
+| Virtual Environment Management | Manual | Built-in | **Built-in** |
+| Python Version Management | No (pyenv needed) | No | **Yes (uv python)** |
+| PEP 621 Compliance | Partial | Partial | **Full** |
+| Single Tool vs Multiple | Multiple | Single | **Single (replaces 7+ tools)** |
+
+### Performance Impact
+
+**Benchmark (typical dependency resolution)**:
+- **pip + pip-tools**: ~120 seconds
+- **Poetry**: ~45 seconds
+- **uv**: ~1.5 seconds
+
+**Impact on Development**:
+- Faster dependency installation → less time waiting, more time coding
+- Lockfile ensures reproducible builds → fewer "works on my machine" issues
+- Dependency groups → cleaner separation of concerns
+- Single tool → simplified workflow, less cognitive overhead
+
+### Known Issues and Workarounds
+
+**PySide6 Platform Compatibility**:
+- Some PySide6 versions lack wheels for specific platforms (e.g., Raspberry Pi)
+- Workaround: Pin version with compatible wheels:
+  ```bash
+  uv add "PySide6!=6.8.1.1"  # Exclude problematic version
+  ```
+- Use `uv lock --no-sources` to test without platform-specific constraints
+
+**uv Installation**:
+```bash
+# Linux/macOS
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Windows
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+# Or via pip
+pip install uv
+```
+
+### Resources
+
+- **uv Documentation**: https://docs.astral.sh/uv/
+- **uv GitHub**: https://github.com/astral-sh/uv
+- **uv Quick Reference**: https://uv.pydevtools.com/
+- **uv Installation Guide**: https://docs.astral.sh/uv/getting-started/installation/
+
+---
+
 ## Summary
 
 **Technology Stack**:
 - **Language**: Python 3.11+
 - **GUI Framework**: PySide6 (Qt6 Python bindings)
 - **Testing**: pytest + pytest-qt + pytest-mock
+- **Dependency Management**: uv (ultrafast package and project manager)
 - **File Format**: JSON
 
 **Key Architectural Decisions**:

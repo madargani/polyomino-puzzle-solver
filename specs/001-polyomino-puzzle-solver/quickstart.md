@@ -12,7 +12,7 @@ This quickstart guide will help you get up and running with the Polyomino Puzzle
 ## Prerequisites
 
 - Python 3.11 or higher
-- pip (Python package manager)
+- uv (ultrafast Python package and project manager)
 - Git (for version control)
 
 ---
@@ -24,6 +24,41 @@ This quickstart guide will help you get up and running with the Polyomino Puzzle
 ```bash
 git clone <repository-url>
 cd polyomino-jigsaw-solver
+```
+
+### 2. Install uv (if not already installed)
+
+```bash
+# Linux/macOS
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Windows
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+# Or via pip (slower, but works)
+pip install uv
+```
+
+### 3. Set Up Project Environment
+
+```bash
+# uv automatically creates and manages .venv
+uv sync --all-groups
+```
+
+This command:
+- Creates a virtual environment (`.venv/`) if it doesn't exist
+- Installs all dependencies from `pyproject.toml` using the locked versions in `uv.lock`
+- Installs dev and test dependency groups
+
+### 4. Verify Installation
+
+```bash
+# Run tests to verify setup
+uv run pytest tests/ -v
+
+# Run application (once implemented)
+uv run python -m src.main
 ```
 
 ### 2. Create Virtual Environment
@@ -65,31 +100,33 @@ python -m src.main
 
 ```
 polyomino-jigsaw-solver/
-├── src/                    # Source code
-│   ├── models/             # Data structures
-│   │   ├── piece.py      # PuzzlePiece class
-│   │   ├── board.py      # GameBoard class
-│   │   └── puzzle_state.py # PuzzleState class
-│   ├── logic/             # Business logic
-│   │   ├── solver.py     # Backtracking algorithm
-│   │   ├── validator.py  # Validation logic
-│   │   └── rotation.py   # Rotation/flip operations
-│   ├── gui/              # User interface
-│   │   ├── editor_window.py  # Puzzle editor
-│   │   ├── board_view.py     # Grid editor
-│   │   ├── piece_widget.py   # Piece interaction
-│   │   └── viz_window.py     # Solver visualization
-│   ├── utils/            # Utilities
-│   │   ├── file_io.py    # JSON I/O
-│   │   └── formatting.py  # Formatting helpers
-│   └── config.py         # Constants and config
-├── tests/               # Test suite
-│   ├── unit/            # Unit tests
-│   ├── integration/     # Integration tests
-│   └── fixtures/        # Test data
-├── specs/              # Feature specifications
-│   └── 001-polyomino-puzzle-solver/
-└── requirements.txt     # Python dependencies
+ ├── src/                    # Source code
+ │   ├── models/             # Data structures
+ │   │   ├── piece.py      # PuzzlePiece class
+ │   │   ├── board.py      # GameBoard class
+ │   │   └── puzzle_state.py # PuzzleState class
+ │   ├── logic/             # Business logic
+ │   │   ├── solver.py     # Backtracking algorithm
+ │   │   ├── validator.py  # Validation logic
+ │   │   └── rotation.py   # Rotation/flip operations
+ │   ├── gui/              # User interface
+ │   │   ├── editor_window.py  # Puzzle editor
+ │   │   ├── board_view.py     # Grid editor
+ │   │   ├── piece_widget.py   # Piece interaction
+ │   │   └── viz_window.py     # Solver visualization
+ │   ├── utils/            # Utilities
+ │   │   ├── file_io.py    # JSON I/O
+ │   │   └── formatting.py  # Formatting helpers
+ │   └── config.py         # Constants and config
+ ├── tests/               # Test suite
+ │   ├── unit/            # Unit tests
+ │   ├── integration/     # Integration tests
+ │   └── fixtures/        # Test data
+ ├── specs/              # Feature specifications
+ │   └── 001-polyomino-puzzle-solver/
+ ├── pyproject.toml       # uv project configuration and dependencies
+ ├── uv.lock             # Dependency lockfile (check into version control)
+ └── .venv/              # Virtual environment (managed by uv, NOT in version control)
 ```
 
 ---
@@ -191,20 +228,32 @@ We follow strict code quality standards:
 Before committing code:
 
 ```bash
-# Run linter
-flake8 src/
+# Run linter (ruff replaces flake8, isort, pyupgrade)
+uv run ruff check src/
 
-# Run type checker
-mypy src/ --strict
+# Auto-fix linting issues
+uv run ruff check --fix src/
 
-# Run formatter
-black src/
+# Run formatter (black)
+uv run black src/
+
+# Run type checker (mypy)
+uv run mypy src/ --strict
 
 # Run tests
-pytest tests/ -v
+uv run pytest tests/ -v
 
 # Check code complexity
-radon cc src/ -a -nb
+uv run radon cc src/ -a -nb
+```
+
+### Pre-commit Checklist
+
+Run all quality gates in one command:
+
+```bash
+# Check linting, formatting, type checking, and tests
+uv run ruff check src/ && uv run black --check src/ && uv run mypy src/ --strict && uv run pytest tests/ -v
 ```
 
 ### File Size Limits
@@ -222,16 +271,21 @@ If limits are exceeded, extract helper functions or split modules.
 
 ```bash
 # Run all tests
-pytest
+uv run pytest
 
 # Run only unit tests
-pytest tests/unit/ -v
+uv run pytest tests/unit/ -v
 
 # Run with coverage
-pytest --cov=src --cov-report=html
+uv run pytest --cov=src --cov-report=html
 
 # Run specific test file
-pytest tests/unit/test_piece.py -v
+uv run pytest tests/unit/test_piece.py -v
+
+# Run by marker (unit, integration, gui)
+uv run pytest -m unit
+uv run pytest -m integration
+uv run pytest -m gui
 ```
 
 ### Writing Tests
@@ -373,7 +427,11 @@ sys.exit(app.exec())
 
 **Solution**:
 ```bash
-pip install pyside6
+# Re-sync dependencies with uv
+uv sync
+
+# Or add specific dependency
+uv add PySide6
 ```
 
 ### Linter Errors
@@ -443,10 +501,35 @@ solver_thread.start()
 
 ## Next Steps
 
-1. **Explore the codebase**: Read through `src/` to understand structure
-2. **Run tests**: `pytest tests/ -v` to verify everything works
+1. **Explore** codebase: Read through `src/` to understand structure
+2. **Run tests**: `uv run pytest tests/ -v` to verify everything works
 3. **Try the examples**: See `Usage Examples` in `data-model.md`
 4. **Read the spec**: Understand user requirements in `spec.md`
 5. **Start contributing**: Check `specs/001-polyomino-puzzle-solver/tasks.md` for implementation tasks
+
+### Common uv Commands
+
+```bash
+# Add a new dependency
+uv add <package-name>
+
+# Add a dev dependency
+uv add --dev <package-name>
+
+# Update lockfile (upgrade all)
+uv lock --upgrade
+
+# Update specific package
+uv lock --upgrade-package <package>
+
+# Remove dependency
+uv remove <package-name>
+
+# View dependency tree
+uv tree
+
+# Run command with specific dependency group
+uv run --with pytest-qt pytest tests/gui/
+```
 
 Happy coding! 🧩

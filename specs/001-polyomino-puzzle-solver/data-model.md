@@ -18,7 +18,7 @@
 | Entity | Description | Module | Key Attributes |
 |--------|-------------|--------|----------------|
 | **PuzzlePiece** | Represents a connected shape made of square grid cells | `models/piece.py` | shape, color, id |
-| **GameBoard** | Represents the rectangular grid area where pieces must be placed | `models/board.py` | width, height, cells |
+| **GameBoard** | Represents the rectangular grid area where pieces must be placed | `models/board.py` | width, height, cells, blocked_cells |
 | **PuzzleState** | Represents the current state of the solving process | `models/puzzle_state.py` | board, placed_pieces, backtrack_history |
 | **PuzzleConfiguration** | Represents a complete puzzle definition | `models/puzzle_config.py` | board_dimensions, pieces |
 
@@ -40,6 +40,7 @@
 | `shape` | `Set[Tuple[int, int]]` | Set of (row, col) coordinates defining the piece shape | Required, non-empty, coordinates relative to origin (0,0) |
 | `color` | `str` | Display color for the piece | Required, hex format or named color |
 | `area` | `int` | Number of cells in the piece (calculated) | Computed from `len(shape)`, ≥ 1 |
+| `precomputed_orientations` | `List['PuzzlePiece']` | Precomputed unique orientations (8 max) | Computed on init, includes 4 rotations × 2 mirrors |
 
 #### Methods
 
@@ -56,6 +57,50 @@ class PuzzlePiece:
         Raises:
             ValueError: If shape is empty or not contiguous
         """
+        self.id = id
+        self.shape = shape
+        self.color = color
+        # Precompute all 8 orientations (4 rotations × 2 mirrors) for performance
+        self.precomputed_orientations = self._compute_all_orientations()
+
+    def _compute_all_orientations(self) -> List['PuzzlePiece']:
+        """Compute and cache all unique orientations (8 max: 4 rotations × 2 mirrors).
+
+        Returns:
+            List of unique PuzzlePiece orientations (deduplicated)
+        """
+        orientations = []
+
+        # Generate 4 rotations: 0°, 90°, 180°, 270°
+        current = self
+        for _ in range(4):
+            # Add original (not flipped) rotation
+            orientations.append(current)
+            # Add flipped version (horizontal flip)
+            flipped = current.flip('horizontal')
+            orientations.append(flipped)
+            # Rotate 90° for next iteration
+            current = current.rotate(90)
+
+        # Deduplicate orientations by shape
+        unique_orientations = []
+        seen_shapes = set()
+        for orientation in orientations:
+            # Normalize shape to tuple for hashing
+            normalized = tuple(sorted(orientation.shape))
+            if normalized not in seen_shapes:
+                seen_shapes.add(normalized)
+                unique_orientations.append(orientation)
+
+        return unique_orientations
+
+    def get_precomputed_orientations(self) -> List['PuzzlePiece']:
+        """Get precomputed orientations for solver use.
+
+        Returns:
+            List of unique PuzzlePiece orientations (precomputed for performance)
+        """
+        return self.precomputed_orientations
 
     def rotate(self, degrees: int = 90) -> 'PuzzlePiece':
         """Rotate the piece by specified degrees (90, 180, 270).
@@ -127,6 +172,8 @@ class PuzzlePiece:
 3. **Origin relative**: Shape should be normalized (min row/col = 0,0)
 4. **Unique rotations**: `get_rotations()` must return deduplicated orientations
 5. **Color format**: Color must be valid hex or named color (e.g., "#FF0000" or "red")
+6. **Precomputed orientations**: Must include 8 total orientations (4 rotations × 2 mirrors), deduplicated
+7. **Orientation count**: `get_precomputed_orientations()` returns 1-8 unique orientations based on piece symmetry
 
 #### State Transitions
 
@@ -159,21 +206,30 @@ class PuzzlePiece:
 | `width` | `int` | Number of columns in the board | Required, 1 ≤ width ≤ 50 |
 | `height` | `int` | Number of rows in the board | Required, 1 ≤ height ≤ 50 |
 | `cells` | `Dict[Tuple[int, int], Optional[str]]` | Grid cells mapping (row,col) → piece_id | Required, initialized to None |
+| `blocked_cells` | `Set[Tuple[int, int]]` | Set of initially filled (blocked) cell positions | Required, immutable, cannot be occupied by pieces |
 | `total_area` | `int` | Total number of cells (calculated) | Computed from width × height |
+| `available_area` | `int` | Number of cells available for pieces (calculated) | Computed from total_area - len(blocked_cells) |
 
 #### Methods
 
 ```python
 class GameBoard:
-    def __init__(self, width: int, height: int) -> None:
+    def __init__(
+        self,
+        width: int,
+        height: int,
+        blocked_cells: Optional[Set[Tuple[int, int]]] = None
+    ) -> None:
         """Initialize a game board with specified dimensions.
 
         Args:
             width: Number of columns (1-50)
             height: Number of rows (1-50)
+            blocked_cells: Set of initially filled (blocked) cell positions
 
         Raises:
             ValueError: If dimensions are out of valid range
+            ValueError: If blocked_cells contain out-of-bounds positions
         """
 
     def can_place_piece(self, piece: PuzzlePiece, position: Tuple[int, int]) -> bool:
@@ -184,7 +240,7 @@ class GameBoard:
             position: (row, col) position to place piece origin
 
         Returns:
-            True if piece fits without overlapping or going out of bounds
+            True if piece fits without overlapping, going out of bounds, or hitting blocked cells
         """
 
     def place_piece(self, piece: PuzzlePiece, position: Tuple[int, int]) -> bool:
@@ -240,6 +296,23 @@ class GameBoard:
             True if no pieces are placed
         """
 
+    def is_blocked(self, position: Tuple[int, int]) -> bool:
+        """Check if a cell is blocked (initially filled).
+
+        Args:
+            position: (row, col) position to query
+
+        Returns:
+            True if cell is blocked
+        """
+
+    def get_blocked_cells(self) -> Set[Tuple[int, int]]:
+        """Get set of all blocked cell positions.
+
+        Returns:
+            Set of (row, col) tuples that are blocked
+        """
+
     def get_piece_at(self, position: Tuple[int, int]) -> Optional[str]:
         """Get the piece ID at the specified position.
 
@@ -267,14 +340,20 @@ class GameBoard:
     @property
     def empty_area(self) -> int:
         """Get number of empty cells."""
-```
+
+    @property
+    def available_area(self) -> int:
+        """Get number of cells available for piece placement (excluding blocked cells)."""
+    ```
 
 #### Validation Rules
 
 1. **Dimension limits**: 1 ≤ width ≤ 50, 1 ≤ height ≤ 50
-2. **In-bounds placement**: All piece cells must be within board boundaries
-3. **No overlap**: Piece cells cannot occupy already-filled cells
-4. **Valid piece ID**: Piece must exist before placement/removal
+2. **Blocked cells in bounds**: All blocked_cells positions must be within board boundaries
+3. **In-bounds placement**: All piece cells must be within board boundaries
+4. **No overlap**: Piece cells cannot occupy already-filled cells or blocked cells
+5. **Valid piece ID**: Piece must exist before placement/removal
+6. **Blocked cells immutable**: blocked_cells cannot be modified after board creation
 
 #### State Transitions
 
@@ -436,6 +515,7 @@ class PuzzleState:
 | `name` | `str` | User-defined puzzle name | Required, unique within puzzles |
 | `board_width` | `int` | Board width in cells | Required, 1 ≤ width ≤ 50 |
 | `board_height` | `int` | Board height in cells | Required, 1 ≤ height ≤ 50 |
+| `blocked_cells` | `Set[Tuple[int, int]]` | Initially filled (blocked) cell positions | Optional, defaults to empty set |
 | `pieces` | `List[PuzzlePiece]` | List of puzzle pieces | Required, non-empty |
 | `created_at` | `datetime` | Timestamp when configuration was created | Required |
 | `modified_at` | `datetime` | Timestamp of last modification | Required |
@@ -449,7 +529,8 @@ class PuzzleConfiguration:
         name: str,
         board_width: int,
         board_height: int,
-        pieces: List[PuzzlePiece]
+        pieces: List[PuzzlePiece],
+        blocked_cells: Optional[Set[Tuple[int, int]]] = None
     ) -> None:
         """Initialize a puzzle configuration.
 
@@ -458,6 +539,7 @@ class PuzzleConfiguration:
             board_width: Board width in cells (1-50)
             board_height: Board height in cells (1-50)
             pieces: List of puzzle pieces
+            blocked_cells: Set of initially filled (blocked) cell positions
 
         Raises:
             ValueError: If constraints are violated
@@ -494,8 +576,13 @@ class PuzzleConfiguration:
         """Create a GameBoard from configuration.
 
         Returns:
-            New GameBoard instance
+            New GameBoard instance with blocked_cells configured
         """
+        return GameBoard(
+            width=self.board_width,
+            height=self.board_height,
+            blocked_cells=self.blocked_cells
+        )
 
     def get_piece_area(self) -> int:
         """Get total area of all pieces.
@@ -512,25 +599,37 @@ class PuzzleConfiguration:
         """
 
     def is_solvable_area(self) -> bool:
-        """Check if piece area matches board area.
+        """Check if piece area matches available board area.
 
         Returns:
-            True if total piece area equals board area
+            True if total piece area equals available board area (total_area - blocked_cells)
         """
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert configuration to dictionary for serialization.
 
         Returns:
-            Dictionary representation
+            Dictionary representation including blocked_cells
         """
+        return {
+            'name': self.name,
+            'board_width': self.board_width,
+            'board_height': self.board_height,
+            'blocked_cells': list(self.blocked_cells),
+            'pieces': [
+                {'id': p.id, 'shape': list(p.shape), 'color': p.color}
+                for p in self.pieces
+            ],
+            'created_at': self.created_at.isoformat(),
+            'modified_at': self.modified_at.isoformat()
+        }
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'PuzzleConfiguration':
         """Create configuration from dictionary.
 
         Args:
-            data: Dictionary representation
+            data: Dictionary representation including blocked_cells
 
         Returns:
             New PuzzleConfiguration instance
@@ -538,6 +637,27 @@ class PuzzleConfiguration:
         Raises:
             ValueError: If data is invalid
         """
+        # Parse blocked_cells (handle missing field for backward compatibility)
+        blocked_cells = set()
+        if 'blocked_cells' in data:
+            blocked_cells = set(tuple(cell) for cell in data['blocked_cells'])
+
+        pieces = [
+            PuzzlePiece(
+                id=p['id'],
+                shape=set(tuple(coord) for coord in p['shape']),
+                color=p['color']
+            )
+            for p in data['pieces']
+        ]
+
+        return cls(
+            name=data['name'],
+            board_width=data['board_width'],
+            board_height=data['board_height'],
+            pieces=pieces,
+            blocked_cells=blocked_cells
+        )
 
     def copy(self) -> 'PuzzleConfiguration':
         """Create a deep copy of the configuration.
@@ -552,8 +672,9 @@ class PuzzleConfiguration:
 1. **Non-empty pieces**: At least one piece must be defined
 2. **Unique piece IDs**: All piece IDs must be unique
 3. **Valid dimensions**: Board dimensions must be 1-50
-4. **Area check**: Total piece area must equal board area (optional warning, not error)
-5. **Unique name**: Puzzle name must be unique within saved puzzles
+4. **Blocked cells in bounds**: All blocked_cells positions must be within board boundaries
+5. **Area check**: Total piece area must equal available board area (total_area - blocked_cells) (optional warning, not error)
+6. **Unique name**: Puzzle name must be unique within saved puzzles
 
 #### State Transitions
 
@@ -643,10 +764,20 @@ class PuzzleConfiguration:
 
 ### Cross-Entity Validation
 
-1. **Piece Area vs Board Area**
-   - **Rule**: Total piece area should equal board area for solvability
+1. **Piece Area vs Available Board Area**
+   - **Rule**: Total piece area should equal available board area (board_area - blocked_cells) for solvability
    - **Enforcement**: Warning in PuzzleConfiguration.validate(), not error
    - **Rationale**: User may want to define unsolvable puzzles for testing
+
+2. **Blocked Cells vs Board Boundaries**
+   - **Rule**: All blocked cell positions must be within board dimensions
+   - **Enforcement**: Error in GameBoard.__init__() and PuzzleConfiguration.validate()
+   - **Rationale**: Prevents invalid state and ensures consistent behavior
+
+3. **Piece Placement vs Blocked Cells**
+   - **Rule**: Pieces cannot be placed on blocked cells
+   - **Enforcement**: Error in GameBoard.can_place_piece() and GameBoard.place_piece()
+   - **Rationale**: Blocked cells are permanently unavailable for piece placement
 
 2. **Piece Placement Validity**
    - **Rule**: All piece cells must be within board bounds
@@ -724,6 +855,7 @@ else:
   "name": "My Puzzle",
   "board_width": 5,
   "board_height": 5,
+  "blocked_cells": [[0, 0], [0, 1], [2, 3]],
   "pieces": [
     {
       "id": "piece-1",

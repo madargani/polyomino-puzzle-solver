@@ -1,0 +1,220 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://polyomino-puzzle-solver.example.com/schemas/puzzle-config.json",
+  "title": "Polyomino Puzzle Configuration",
+  "description": "JSON schema for polyomino puzzle configuration files",
+  "type": "object",
+  "required": [
+    "version",
+    "name",
+    "board",
+    "pieces"
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Schema version for future compatibility"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "User-defined puzzle name"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional puzzle description"
+    },
+    "board": {
+      "type": "object",
+      "required": [
+        "width",
+        "height"
+      ],
+      "properties": {
+        "width": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "description": "Board width in cells"
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "description": "Board height in cells"
+        },
+        "filled_cells": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/cell_position"
+          },
+          "uniqueItems": true,
+          "description": "Cells that are initially filled/blocked"
+        }
+      }
+    },
+    "pieces": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/piece"
+      },
+      "description": "List of puzzle pieces"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation timestamp"
+        },
+        "modified_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last modification timestamp"
+        },
+        "author": {
+          "type": "string",
+          "description": "Puzzle creator name"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Tags for categorization"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "cell_position": {
+      "type": "array",
+      "items": [
+        {
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "type": "integer",
+          "minimum": 0
+        }
+      ],
+      "minItems": 2,
+      "maxItems": 2,
+      "description": "Cell position as [row, col] coordinates"
+    },
+    "piece": {
+      "type": "object",
+      "required": [
+        "id",
+        "shape",
+        "color"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*$",
+          "description": "Unique piece identifier"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Human-readable piece name"
+        },
+        "shape": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/cell_position"
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "Piece shape as list of cell coordinates"
+        },
+        "color": {
+          "type": "string",
+          "pattern": "^(#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}|[a-zA-Z]+)$",
+          "description": "Piece color (hex or named color)"
+        },
+        "transformations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/piece_transformation"
+          },
+          "description": "Precomputed transformations (optional, computed if not provided)"
+        }
+      }
+    },
+    "piece_transformation": {
+      "type": "object",
+      "required": [
+        "type",
+        "shape"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "original",
+            "rotate_90",
+            "rotate_180",
+            "rotate_270",
+            "flip_horizontal",
+            "flip_vertical",
+            "rotate_90_flip",
+            "rotate_270_flip"
+          ],
+          "description": "Transformation type"
+        },
+        "shape": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/cell_position"
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "Transformed shape coordinates"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "version": "1.0.0",
+      "name": "Simple 4x4 Puzzle",
+      "board": {
+        "width": 4,
+        "height": 4,
+        "filled_cells": []
+      },
+      "pieces": [
+        {
+          "id": "L-tetromino",
+          "name": "L Tetromino",
+          "shape": [
+            [0, 0],
+            [1, 0],
+            [1, 1],
+            [1, 2]
+          ],
+          "color": "#FF5733"
+        },
+        {
+          "id": "T-tetromino",
+          "name": "T Tetromino",
+          "shape": [
+            [0, 0],
+            [0, 1],
+            [0, 2],
+            [1, 1]
+          ],
+          "color": "#33FF57"
+        }
+      ]
+    }
+  ]
+}

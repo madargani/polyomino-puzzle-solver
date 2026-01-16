@@ -7,6 +7,11 @@
 
 ## Clarifications
 
+### Session 2026-01-16
+
+- Q: When you say "all possible transformations" for puzzle pieces, what specific transformations should be precomputed? This affects both the number of orientations generated and the solving algorithm's approach. → A: Rotations + Mirrors (rotate 0°, 90°, 180°, 270° and mirror each rotation for 8 total orientations)
+- Q: How should users define initially filled (blocked) cells on the board? Should this be through manual placement in the editor, importing from files, or both? → A: Both methods (manual placement in grid editor + import from files)
+
 ### Session 2026-01-14
 
 - Q: What format should be used for saving/loading puzzle configurations and export/import? → A: JSON (JavaScript Object Notation)
@@ -19,7 +24,7 @@
 
 ### User Story 1 - Define Puzzle Configuration (Priority: P1)
 
-The user launches the application and sees a graphical interface where they can define the puzzle pieces and board shape. They interact with a grid-based editor to draw the shape of each polyomino piece and specify the dimensions of the board where pieces will be placed. The user can add multiple pieces of various shapes and sizes to their puzzle configuration.
+The user launches the application and sees a graphical interface where they can define the puzzle pieces and board shape. They interact with a grid-based editor to draw the shape of each polyomino piece, specify the dimensions of the board where pieces will be placed, and optionally mark certain cells as initially filled (blocked). The user can add multiple pieces of various shapes and sizes to their puzzle configuration and define boards with pre-filled regions.
 
 **Why this priority**: This is the foundational user journey - without the ability to define puzzles, no other functionality can exist. It represents the core value proposition of allowing users to create and solve custom puzzles.
 
@@ -29,8 +34,9 @@ The user launches the application and sees a graphical interface where they can 
 
 1. **Given** the application is launched, **When** the user draws a shape on the grid editor, **Then** the shape is visually displayed and stored as a defined piece
 2. **Given** the application is launched, **When** the user sets the board dimensions (width and height), **Then** the board boundary is displayed in the editor
-3. **Given** multiple pieces have been defined, **When** the user selects a piece, **Then** the piece shape is highlighted in the editor
-4. **Given** a piece has been defined, **When** the user deletes it, **Then** the piece is removed from the configuration
+3. **Given** the application is launched, **When** the user marks cells as initially filled, **Then** those cells are displayed as blocked and unavailable for piece placement
+4. **Given** multiple pieces have been defined, **When** the user selects a piece, **Then** the piece shape is highlighted in the editor
+5. **Given** a piece has been defined, **When** the user deletes it, **Then** the piece is removed from the configuration
 
 ---
 
@@ -54,7 +60,7 @@ After defining the puzzle configuration, the user clicks the "Solve" button. A n
 
 ### User Story 3 - Puzzle Management (Priority: P3)
 
-The user can save puzzle configurations for later use and load previously saved puzzles. They can also clear the current configuration to start fresh, export puzzle configurations to share with others, and import configurations received from other users.
+The user can save puzzle configurations for later use and load previously saved puzzles. They can also clear the current configuration to start fresh, export puzzle configurations to share with others, and import configurations received from other users. Board configurations with initially filled cells can be saved, loaded, and shared alongside piece definitions.
 
 **Why this priority**: This enhances usability by allowing users to build a library of puzzles and share interesting configurations. It's valuable but not essential for core functionality.
 
@@ -63,16 +69,16 @@ The user can save puzzle configurations for later use and load previously saved 
 **Acceptance Scenarios**:
 
 1. **Given** a puzzle configuration is defined, **When** the user saves it with a name, **Then** the configuration is stored and appears in the list of saved puzzles
-2. **Given** saved puzzles exist, **When** the user selects and loads one, **Then** the editor displays the loaded configuration exactly as saved
-3. **Given** a puzzle configuration is defined, **When** the user clicks "Clear", **Then** all pieces and board settings are reset to the default state
-4. **Given** a puzzle configuration, **When** the user exports it, **Then** a file is created containing the puzzle data
-5. **Given** a puzzle file, **When** the user imports it, **Then** the editor displays the imported configuration
+2. **Given** saved puzzles exist, **When** the user selects and loads one, **Then** the editor displays the loaded configuration exactly as saved (including any initially filled cells)
+3. **Given** a puzzle configuration is defined, **When** the user clicks "Clear", **Then** all pieces, board dimensions, and filled cell markings are reset to the default state
+4. **Given** a puzzle configuration, **When** the user exports it, **Then** a file is created containing the puzzle data including board configuration with filled cells
+5. **Given** a puzzle file, **When** the user imports it, **Then** the editor displays the imported configuration including any initially filled cells
 
 ---
 
 ### Edge Cases
 
-- What happens when the user defines pieces that have a total area larger than the board area?
+- What happens when the user defines pieces that have a total area larger than the board area (excluding initially filled cells)?
 - What happens when the user defines no pieces or an empty board?
 - What happens when pieces have overlapping shapes or invalid geometries?
 - How does the system handle puzzles at the maximum limit (50×50 board with many pieces)?
@@ -80,6 +86,9 @@ The user can save puzzle configurations for later use and load previously saved 
 - How does the visualization handle puzzles that take an extremely long time to solve or are computationally intractable?
 - What happens when the user closes the visualization window before solving completes?
 - When the user attempts to modify the puzzle configuration while the solver is running, edit controls are disabled and a notification is displayed informing the user that editing is locked during solving
+- What happens when initially filled cells make the puzzle unsolvable (e.g., isolated regions that cannot accommodate any piece)?
+- What happens when the user marks cells as filled that would leave insufficient space for all pieces?
+- How does the system handle imported board configurations with conflicting filled cell data?
 
 ## Requirements *(mandatory)*
 
@@ -89,7 +98,13 @@ The user can save puzzle configurations for later use and load previously saved 
 - **FR-002**: System MUST allow users to specify board dimensions through the graphical interface, with maximum dimensions of 50×50 cells
 - **FR-003**: System MUST support defining multiple polyomino pieces of various shapes and sizes
 - **FR-004**: System MUST validate that piece shapes are contiguous and contain at least one grid cell
-- **FR-005**: System MUST visualize each piece type with a unique color for clear visual distinction in both editor and visualization windows
+- **FR-005**: System MUST visualize piece types with clear visual distinction in both editor and visualization windows
+- **FR-005a**: System MUST precompute all possible transformations for each piece type before solving begins
+- **FR-005b**: Precomputed transformations MUST include rotations at 0°, 90°, 180°, and 270° plus mirrored versions of each rotation (8 total orientations per piece)
+- **FR-005c**: System MUST allow users to define board configurations with cells that are initially filled (blocked)
+- **FR-005d**: System MUST provide manual controls for placing blocked cells on the board in the grid editor
+- **FR-005e**: System MUST support importing board configurations with pre-filled cells from JSON files
+- **FR-005f**: Initially filled cells MUST be treated as unavailable for piece placement during solving
 - **FR-006**: System MUST provide a "Solve" action that triggers the solving algorithm
 - **FR-007**: System MUST open a separate visualization window when solving begins
 - **FR-008**: System MUST display the board grid in the visualization window
@@ -108,8 +123,8 @@ The user can save puzzle configurations for later use and load previously saved 
 
 ### Key Entities
 
-- **Polyomino Piece**: Represents a connected shape made of square grid cells, characterized by its shape (pattern of cells), its unique color assignment, and potentially its orientation/rotation state
-- **Board**: Represents the rectangular grid area where pieces must be placed without overlap to solve the puzzle, characterized by its width, height, and cell occupancy state
+- **Polyomino Piece**: Represents a connected shape made of square grid cells, characterized by its shape (pattern of cells), its precomputed transformation set (8 orientations), and current orientation state during solving
+- **Board**: Represents the rectangular grid area where pieces must be placed without overlap to solve the puzzle, characterized by its width, height, initially filled (blocked) cells, and dynamic cell occupancy state during solving
 - **Puzzle Configuration**: Represents a complete puzzle definition containing the board dimensions and the set of polyomino pieces that must be placed
 - **Solution State**: Represents the current state of the solving process, including the current board configuration, pieces placed, placement order, and backtracking history
 
@@ -133,6 +148,9 @@ The user can save puzzle configurations for later use and load previously saved 
 - Puzzles are small enough that backtracking can find solutions in reasonable time (e.g., under 2 minutes for typical puzzles)
 - Users want to understand the solving process, not just see the final result
 - The visualization speed should be slow enough to follow but fast enough not to be tedious
+- Precomputing all 8 transformations (4 rotations × 2 mirrors) before solving significantly improves solving performance compared to computing transformations on-demand
+- Initially filled cells on the board create permanent obstacles that cannot be covered by puzzle pieces
+- Board configurations with initially filled cells should be treated as distinct puzzle types from empty boards of the same dimensions
 
 ## Out of Scope
 

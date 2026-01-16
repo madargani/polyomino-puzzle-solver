@@ -1,0 +1,302 @@
+{
+  "schema_version": "1.0.0",
+  "feature": "Polyomino Puzzle Solver",
+  "date": "January 16, 2026",
+  "description": "Qt signal/slot contracts for GUI event handling",
+  
+  "editor_window": {
+    "signals": {
+      "puzzle_changed": {
+        "type": "Signal()",
+        "description": "Emitted when any puzzle configuration changes",
+        "trigger": "Piece added/removed/modified, board dimension changed, filled cells changed"
+      },
+      "piece_selected": {
+        "type": "Signal(str)",
+        "description": "Emitted when user selects a piece",
+        "trigger": "Piece clicked in piece list or on board"
+      },
+      "solve_requested": {
+        "type": "Signal(PuzzleConfiguration)",
+        "description": "Emitted when user clicks Solve button",
+        "trigger": "Valid puzzle configuration ready"
+      },
+      "save_requested": {
+        "type": "Signal()",
+        "description": "Emitted when user requests save",
+        "trigger": "Save menu/button clicked"
+      },
+      "load_requested": {
+        "type": "Signal()",
+        "description": "Emitted when user requests load",
+        "trigger": "Load menu/button clicked"
+      },
+      "export_requested": {
+        "type": "Signal()",
+        "description": "Emitted when user requests export",
+        "trigger": "Export menu/button clicked"
+      },
+      "import_requested": {
+        "type": "Signal()",
+        "description": "Emitted when user requests import",
+        "trigger": "Import menu/button clicked"
+      },
+      "clear_requested": {
+        "type": "Signal()",
+        "description": "Emitted when user requests clear",
+        "trigger": "Clear button clicked"
+      }
+    },
+    "slots": {
+      "on_add_piece_clicked": {
+        "input_type": "None",
+        "description": "Add new piece to configuration",
+        "handler": "Button click handler"
+      },
+      "on_delete_piece_clicked": {
+        "input_type": "None",
+        "description": "Delete selected piece",
+        "handler": "Button click handler"
+      },
+      "on_duplicate_piece_clicked": {
+        "input_type": "None",
+        "description": "Duplicate selected piece",
+        "handler": "Button click handler"
+      },
+      "on_piece_color_changed": {
+        "input_type": "str",
+        "description": "Change selected piece color",
+        "handler": "Color picker change"
+      },
+      "on_board_size_changed": {
+        "input_type": "int,int",
+        "description": "Change board dimensions",
+        "handler": "Spin box change"
+      },
+      "on_cell_toggled": {
+        "input_type": "Tuple[int,int],bool",
+        "description": "Toggle filled cell",
+        "handler": "Grid cell click"
+      },
+      "on_solve_clicked": {
+        "input_type": "None",
+        "description": "Trigger solve request",
+        "handler": "Button click handler"
+      },
+      "on_save_clicked": {
+        "input_type": "None",
+        "description": "Trigger save request",
+        "handler": "Button click handler"
+      },
+      "on_load_clicked": {
+        "input_type": "None",
+        "description": "Trigger load request",
+        "handler": "Button click handler"
+      },
+      "on_export_clicked": {
+        "input_type": "None",
+        "description": "Trigger export request",
+        "handler": "Button click handler"
+      },
+      "on_import_clicked": {
+        "input_type": "None",
+        "description": "Trigger import request",
+        "handler": "Button click handler"
+      },
+      "on_clear_clicked": {
+        "input_type": "None",
+        "description": "Trigger clear request",
+        "handler": "Button click handler"
+      }
+    }
+  },
+  
+  "viz_window": {
+    "signals": {
+      "solver_started": {
+        "type": "Signal()",
+        "description": "Emitted when solver begins",
+        "trigger": "Solve thread starts"
+      },
+      "solver_finished": {
+        "type": "Signal(bool)",
+        "description": "Emitted when solver completes",
+        "trigger": "Solution found or exhausted"
+      },
+      "solver_stopped": {
+        "type": "Signal()",
+        "description": "Emitted when user stops solver",
+        "trigger": "Stop button clicked"
+      },
+      "piece_placed": {
+        "type": "Signal(PuzzlePiece,Tuple[int,int])",
+        "description": "Emitted when piece placed",
+        "trigger": "Backtracking step"
+      },
+      "piece_removed": {
+        "type": "Signal(Tuple[int,int])",
+        "description": "Emitted when piece removed",
+        "trigger": "Backtracking step"
+      },
+      "progress_updated": {
+        "type": "Signal(int,int)",
+        "description": "Emitted with (current, total) pieces",
+        "trigger": "Progress update"
+      }
+    },
+    "slots": {
+      "on_speed_changed": {
+        "input_type": "float",
+        "description": "Change visualization delay",
+        "handler": "Slider/button change"
+      },
+      "on_stop_clicked": {
+        "input_type": "None",
+        "description": "Stop solver thread",
+        "handler": "Button click handler"
+      },
+      "on_update_received": {
+        "input_type": "GameBoard,List[PuzzlePiece],int",
+        "description": "Update visualization",
+        "handler": "Solver callback"
+      },
+      "on_solution_found": {
+        "input_type": "GameBoard,List[PuzzlePiece]",
+        "description": "Display solution",
+        "handler": "Solver success"
+      },
+      "on_no_solution": {
+        "input_type": "None",
+        "description": "Display failure message",
+        "handler": "Solver failure"
+      }
+    }
+  },
+  
+  "board_view": {
+    "signals": {
+      "cell_clicked": {
+        "type": "Signal(Tuple[int,int])",
+        "description": "Emitted when cell clicked",
+        "trigger": "Mouse click on cell"
+      },
+      "cell_entered": {
+        "type": "Signal(Tuple[int,int])",
+        "description": "Emitted when mouse enters cell",
+        "trigger": "Mouse hover"
+      },
+      "selection_changed": {
+        "type": "Signal(Set[Tuple[int,int]])",
+        "description": "Emitted when selection changes",
+        "trigger": "Drag selection"
+      }
+    },
+    "slots": {
+      "set_piece_shape": {
+        "input_type": "Set[Tuple[int,int]]",
+        "description": "Set piece being drawn",
+        "handler": "Piece creation"
+      },
+      "show_placed_piece": {
+        "input_type": "PuzzlePiece,Tuple[int,int]",
+        "description": "Display placed piece",
+        "handler": "Solver step"
+      },
+      "remove_placed_piece": {
+        "input_type": "Tuple[int,int]",
+        "description": "Remove placed piece",
+        "handler": "Backtrack step"
+      },
+      "highlight_cell": {
+        "input_type": "Tuple[int,int],str",
+        "description": "Highlight specific cell",
+        "handler": "Cursor/selection"
+      },
+      "clear_highlights": {
+        "input_type": "None",
+        "description": "Clear all highlights",
+        "handler": "Selection cleared"
+      }
+    }
+  },
+  
+  "solver_thread": {
+    "signals": {
+      "update_ready": {
+        "type": "Signal(GameBoard,List[PuzzlePiece],int)",
+        "description": "New state ready for visualization",
+        "trigger": "Backtracking step"
+      },
+      "solution_found": {
+        "type": "Signal(GameBoard,List[PuzzlePiece])",
+        "description": "Solution discovered",
+        "trigger": "Success"
+      },
+      "no_solution": {
+        "type": "Signal()",
+        "description": "Exhausted all possibilities",
+        "trigger": "Failure"
+      },
+      "progress": {
+        "type": "Signal(int,int)",
+        "description": "pieces_placed,total_pieces",
+        "trigger": "Progress update"
+      },
+      "error": {
+        "type": "Signal(str)",
+        "description": "Error message",
+        "trigger": "Exception raised"
+      }
+    },
+    "slots": {
+      "start_solving": {
+        "input_type": "PuzzleConfiguration",
+        "description": "Begin solving process",
+        "handler": "External trigger"
+      },
+      "stop": {
+        "input_type": "None",
+        "description": "Stop solving gracefully",
+        "handler": "External trigger"
+      },
+      "set_delay": {
+        "input_type": "float",
+        "description": "Update visualization delay",
+        "handler": "Speed control"
+      }
+    }
+  },
+  
+  "error_handling": {
+    "signals": {
+      "validation_error": {
+        "type": "Signal(str)",
+        "description": "Invalid puzzle configuration",
+        "handler": "Show error dialog"
+      },
+      "io_error": {
+        "type": "Signal(str)",
+        "description": "File I/O failure",
+        "handler": "Show error dialog"
+      },
+      "solver_error": {
+        "type": "Signal(str)",
+        "description": "Solver exception",
+        "handler": "Show error dialog, stop solver"
+      },
+      "warning": {
+        "type": "Signal(str)",
+        "description": "Non-critical issue",
+        "handler": "Show warning toast"
+      }
+    }
+  },
+  
+  "thread_safety_rules": [
+    "GUI Thread: All signal emissions FROM worker threads must use Signal.emit() which is thread-safe",
+    "Direct Slots: Slots connected to worker thread signals are called from worker thread context",
+    "Cross-thread Updates: Use QMetaObject.invokeMethod() or custom queued connections for GUI updates",
+    "No Direct Access: Worker threads must NOT directly modify GUI objects",
+    "Signal-slot Connections: Use Qt.QueuedConnection for cross-thread communication"
+  ]
+}

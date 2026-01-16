@@ -1,58 +1,57 @@
 # Implementation Plan: Polyomino Puzzle Solver
 
-**Branch**: `001-polyomino-puzzle-solver` | **Date**: January 14, 2026 | **Spec**: [spec.md](./spec.md)
+**Branch**: `001-polyomino-puzzle-solver` | **Date**: January 16, 2026 | **Spec**: [spec.md](spec.md)
 **Input**: Feature specification from `/specs/001-polyomino-puzzle-solver/spec.md`
-
-**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
 
 ## Summary
 
-Build a Python desktop GUI application for defining and visualizing polyomino puzzle solutions using **PySide6 (Qt6)**. Users can draw piece shapes on a grid editor, set board dimensions (up to 50x50 cells), and watch a backtracking algorithm solve puzzles in real-time with user-adjustable speed. The app supports saving/loading puzzles via JSON, uses unique colors for visual distinction, and enforces strict separation of concerns between GUI and business logic. Key technology decisions include:
+A Python GUI application for solving polyomino puzzles using backtracking algorithm with real-time visualization. The application provides a puzzle editor for defining piece shapes and board configurations, and a separate visualization window showing the step-by-step solving process.
 
-- **GUI Framework**: PySide6 selected over Tkinter (performance) and Dear PyGui (community) for optimal 30fps+ visualization with QGraphicsScene handling 40,000+ items
-- **Threading**: Thread-based solver with Qt signals for thread-safe UI updates (prevents freezing during computation)
-- **Testing**: pytest + pytest-qt + pytest-mock for comprehensive unit and integration testing with GUI component mocking
-- **Architecture**: Strict separation of models (data), logic (algorithms), gui (presentation), and utils (helpers) following constitution principles
+**Technical Approach**:
+- **GUI Framework**: PySide6 (Qt6 Python bindings) for high-performance real-time visualization
+- **Architecture**: Thread-based solver with Qt signals for thread-safe GUI updates
+- **Data Layer**: Immutable models (PuzzlePiece, GameBoard, PuzzleState, PuzzleConfiguration)
+- **Testing**: pytest + pytest-qt with mocked GUI components
+- **Dependency Management**: uv for fast, reproducible Python package management
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
-
-**Language/Version**: Python 3.11+
-**Primary Dependencies**: PySide6 (Qt6), pytest, pytest-qt, pytest-mock
-**Storage**: JSON files (local filesystem)
-**Testing**: pytest + pytest-qt + pytest-mock
-**Target Platform**: Desktop (Linux, Windows, macOS)
-**Project Type**: single (desktop GUI application)
-**Performance Goals**: 30fps minimum for visualization, <2 minutes solve time for typical puzzles
-**Constraints**: 50x50 maximum board dimensions, offline-capable, user-adjustable visualization speed (100ms default delay)
-**Scale/Scope**: Single-user desktop app, ~10-15 modules, 2 GUI windows (editor + visualization)
+**Language/Version**: Python 3.11+  
+**Primary Dependencies**: PySide6>=6.5.0, pytest>=7.0, pytest-qt>=4.0, pytest-mock>=3.10  
+**Storage**: JSON file format for puzzle save/load/export/import  
+**Testing**: pytest with pytest-qt for GUI testing, pytest-mock for mocking  
+**Target Platform**: Desktop (Linux, macOS, Windows)  
+**Project Type**: Single desktop application  
+**Performance Goals**: 30fps minimum during visualization for puzzles with up to 2500 cells (50×50)  
+**Constraints**: <200ms UI response time, offline-capable, no external services  
+**Scale/Scope**: Single-user desktop application, typically 1-50 pieces per puzzle  
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- **Modularity & Decomposition**: ✅ PASS - Will enforce <50 lines per function, <300 lines per file. File structure will follow domain responsibility (models/, logic/, gui/, utils/ as suggested in constitution)
-- **Readability First**: ✅ PASS - All functions will have type hints and docstrings following PEP 257. Names will be descriptive (e.g., `calculate_piece_rotation` not `calc_rot`)
-- **GUI Separation of Concerns**: ✅ PASS - Business logic (solver, validator, rotation) will be in separate modules from UI code. UI handlers will only trigger operations, not implement algorithms. State managed in separate model classes
-- **Code Quality Gates**: ✅ PASS - Will configure flake8 for linting, mypy for type checking, and black for formatting. Will enforce cyclomatic complexity <10 per function using radon
-- **Simplicity Over Complexity**: ✅ PASS - Will use standard library first. Only necessary dependencies (GUI framework + pytest). No premature optimization before measuring performance issues. No over-abstraction for single-instance objects
+- **Modularity & Decomposition**: ✅ Files split by responsibility (models/, logic/, gui/, utils/). Functions under 50 lines, files under 300 lines.
+- **Readability First**: ✅ All functions have type hints and docstrings. Descriptive naming throughout.
+- **GUI Separation of Concerns**: ✅ Business logic separated from UI code (logic/ vs gui/). Thread-based solver prevents GUI blocking.
+- **Code Quality Gates**: ✅ Linter (ruff), type checker (mypy), formatter (black) configured in pyproject.toml.
+- **Simplicity Over Complexity**: ✅ Minimal dependencies (PySide6 + testing libs). Standard library first approach. No premature optimization.
+
+**Status**: ✅ ALL GATES PASS
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/[###-feature]/
+specs/001-polyomino-puzzle-solver/
 ├── plan.md              # This file (/speckit.plan command output)
-├── research.md          # Phase 0 output (/speckit.plan command)
-├── data-model.md        # Phase 1 output (/speckit.plan command)
-├── quickstart.md        # Phase 1 output (/speckit.plan command)
+├── research.md          # Phase 0 output (/speckit.plan command) ✅ COMPLETE
+├── data-model.md        # Phase 1 output (/speckit.plan command) ✅ COMPLETE
+├── quickstart.md        # Phase 1 output (/speckit.plan command) ✅ COMPLETE
 ├── contracts/           # Phase 1 output (/speckit.plan command)
+│   ├── gui-events.json  # Qt signal/slot contracts ✅ COMPLETE
+│   ├── json-schema.json # JSON serialization schema ✅ COMPLETE
+│   └── module-api.md    # Module API contracts ✅ COMPLETE
 └── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
 ```
 
@@ -60,44 +59,96 @@ specs/[###-feature]/
 
 ```text
 src/
-├── models/               # Data structures and domain objects
-│   ├── piece.py          # PuzzlePiece class with shape, color, rotations
-│   ├── board.py          # GameBoard class with dimensions, cell occupancy
-│   └── puzzle_state.py   # Solution state with placed pieces, backtrack history
-├── logic/                # Business logic and algorithms
-│   ├── solver.py         # Backtracking solver algorithm
-│   ├── validator.py      # Piece and puzzle validation logic
-│   └── rotation.py       # Piece rotation and flip operations
-├── gui/                  # UI components (framework-specific)
-│   ├── editor_window.py  # Main editor window for defining puzzles
-│   ├── board_view.py     # Grid-based board editor component
-│   ├── piece_widget.py   # Piece drawing and interaction widget
-│   └── viz_window.py     # Visualization window for solver animation
-├── utils/                # Utility functions
-│   ├── file_io.py        # JSON save/load/export/import operations
-│   └── formatting.py     # Display formatting and color management
-└── config.py             # Configuration and constants
+├── models/
+│   ├── __init__.py
+│   ├── piece.py         # PuzzlePiece class
+│   ├── board.py         # GameBoard class
+│   ├── puzzle_state.py  # PuzzleState class
+│   └── puzzle_config.py # PuzzleConfiguration class
+├── logic/
+│   ├── __init__.py
+│   ├── solver.py        # BacktrackingSolver class
+│   ├── validator.py     # PuzzleValidator class
+│   └── rotation.py      # RotationOperations class
+├── gui/
+│   ├── __init__.py
+│   ├── editor_window.py # EditorWindow class
+│   ├── viz_window.py    # VizWindow class
+│   ├── board_view.py    # BoardView widget
+│   └── piece_widget.py  # PieceWidget component
+├── utils/
+│   ├── __init__.py
+│   └── file_io.py       # JSON save/load/export/import
+├── config.py            # Constants and configuration
+└── main.py              # Application entry point
 
 tests/
-├── unit/                 # Isolated tests for individual functions
-│   ├── test_piece.py     # Tests for piece creation, rotation, validation
-│   ├── test_board.py     # Tests for board operations, placement checks
-│   ├── test_solver.py    # Tests for backtracking algorithm logic
-│   └── test_rotation.py  # Tests for rotation/flip operations
-├── integration/          # Tests across module boundaries
-│   ├── test_puzzle_flow.py    # End-to-end puzzle setup and solve
-│   └── test_file_io.py        # Save/load/export/import integration
-└── fixtures/             # Test data
-    └── sample_puzzles.json     # Example puzzle configurations
+├── unit/
+│   ├── __init__.py
+│   ├── test_piece.py
+│   ├── test_board.py
+│   ├── test_solver.py
+│   ├── test_rotation.py
+│   └── test_gui_handlers.py
+├── integration/
+│   ├── __init__.py
+│   ├── test_puzzle_flow.py
+│   └── test_file_io.py
+└── fixtures/
+    ├── __init__.py
+    └── sample_puzzles.json
 ```
 
-**Structure Decision**: Single desktop project following constitution's suggested structure. Separation of concerns enforced: models (data), logic (algorithms), gui (presentation), utils (helpers). Tests mirror source structure with unit and integration layers.
+**Structure Decision**: Single project with clear module boundaries. Models contain pure data structures with no business logic. Logic module contains algorithms (solver, validator, rotation). GUI module contains Qt widgets. Utils module contains file I/O. This separation enables unit testing without GUI dependencies.
 
-## Complexity Tracking
+## Implementation Phases
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
+### Phase 0: Research (✅ COMPLETE)
+- GUI Framework Selection: PySide6 chosen for performance and cross-platform support
+- Backtracking Visualization: Thread-based solver with Qt signals
+- Testing Strategy: pytest + pytest-qt with mocked GUI components
+- Dependency Management: uv for fast Python package management
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+**Output**: `research.md` (923 lines)
+
+### Phase 1: Design (✅ COMPLETE)
+- Data Models: PuzzlePiece, GameBoard, PuzzleState, PuzzleConfiguration
+- GUI Event Contracts: Qt signal/slot definitions (gui-events.json)
+- JSON Schema: Puzzle configuration file format (json-schema.json)
+- Module APIs: Public interfaces between modules (module-api.md)
+- Quickstart Guide: Setup and development workflow documentation
+
+**Output**: `data-model.md`, `quickstart.md`, `contracts/*`
+
+### Phase 2: Implementation (PENDING)
+- Create source code structure (src/, tests/)
+- Implement models (piece, board, puzzle_state, puzzle_config)
+- Implement logic (solver, validator, rotation)
+- Implement GUI (editor_window, viz_window, board_view, piece_widget)
+- Implement utils (file_io)
+- Write unit tests
+- Write integration tests
+- Verify code quality (ruff, mypy, black)
+- Test on all target platforms
+
+**Output**: `tasks.md` (generated by /speckit.tasks command)
+
+## Next Steps
+
+1. **Generate Implementation Tasks**: Run `/speckit.tasks` to generate detailed implementation tasks
+2. **Review Phase 1 Artifacts**: Verify research.md, data-model.md, quickstart.md, and contracts/* are complete
+3. **Begin Implementation**: Start with models layer, then logic, then GUI
+4. **Run Quality Gates**: Ensure ruff, mypy, and tests pass at each milestone
+5. **Update Documentation**: Keep spec.md and other documentation in sync with implementation
+
+## Verification Checklist
+
+- [x] Technical Context filled with Python 3.11+, PySide6, pytest, uv
+- [x] Constitution Check: All 5 principles pass
+- [x] Project Structure: Single project with clear module boundaries defined
+- [x] Phase 0 Research: research.md complete (GUI framework, visualization, testing, dependencies)
+- [x] Phase 1 Design: data-model.md, quickstart.md, contracts/* complete
+- [x] Agent Context: opencode context updated in AGENTS.md
+- [x] All artifacts in correct location: `specs/001-polyomino-puzzle-solver/`
+
+**Plan Status**: ✅ READY FOR IMPLEMENTATION
