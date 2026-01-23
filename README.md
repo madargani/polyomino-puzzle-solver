@@ -25,7 +25,7 @@ Inspired by day 12 of [Advent of Code 2025](https://adventofcode.com/2025) and m
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/madargani/polyomino-jigsaw-solver.git
 cd polyomino-jigsaw-solver
 
 # Install uv if not already installed
